@@ -25,7 +25,7 @@ namespace IpProxy
             if (isKeepAlive)
             {
                 _logger.LogInformation("Request is a Keep Alive request. Ignoring.");
-                return new NoContentResult();
+                return new OkObjectResult(new ResponseModel("success"));
             }
 
             string clientIp = req.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "";
@@ -52,7 +52,7 @@ namespace IpProxy
                     {
                         _logger.LogInformation($"Successfully processed IP: {ip}.");
 
-                        var result = await response.Content.ReadFromJsonAsync<IpApiResult>();
+                        var result = await response.Content.ReadFromJsonAsync<ResponseModel>();
 
                         if (result?.Status == "success")
                         {
@@ -66,7 +66,7 @@ namespace IpProxy
                     else
                     {
                         var body = await response.Content.ReadAsStringAsync();
-                        var result = new ObjectResult(body);
+                        var result = new ObjectResult(new ResponseModel("fail", body));
 
                         if (int.TryParse(response.StatusCode.ToString(), out int statusCode))
                         {
@@ -84,7 +84,7 @@ namespace IpProxy
                 catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
                 {
                     _logger.LogInformation($"Request to API timed out: {clientIp}.");
-                    var result = new ObjectResult("Request to IP-API.com timed out.");
+                    var result = new ObjectResult(new ResponseModel("fail", "Request to IP-API.com timed out."));
                     result.StatusCode = StatusCodes.Status504GatewayTimeout;
                     return result;
                 }
@@ -92,11 +92,11 @@ namespace IpProxy
             else
             {
                 _logger.LogInformation($"IP address is not a valid IP address: {clientIp}.");
-                return new BadRequestObjectResult($"IP address is not a valid IP address: {clientIp}");
+                return new BadRequestObjectResult(new ResponseModel("fail", $"IP address is not a valid IP address: {clientIp}"));
             }
         }
 
-        private class IpApiResult
+        private class ResponseModel
         {
             public string? Status { get; set; }
             public string? Message { get; set; }
@@ -112,6 +112,38 @@ namespace IpProxy
             public string? Org { get; set; }
             public string? As { get; set; }
             public string? Query { get; set; }
+
+            public ResponseModel(
+                string? status = null,
+                string? message = null,
+                string? country = null,
+                string? regionName = null,
+                string? city = null,
+                string? zip = null,
+                double? lat = null,
+                double? lon = null,
+                string? timezone = null,
+                int? offset = null,
+                string? isp = null,
+                string? org = null,
+                string? @as = null,
+                string? query = null)
+            {
+                Status = status;
+                Message = message;
+                Country = country;
+                RegionName = regionName;
+                City = city;
+                Zip = zip;
+                Lat = lat;
+                Lon = lon;
+                Timezone = timezone;
+                Offset = offset;
+                Isp = isp;
+                Org = org;
+                As = @as;
+                Query = query;
+            }
         }
     }
 
