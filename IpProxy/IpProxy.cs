@@ -46,7 +46,7 @@ namespace IpProxy
 
                 try
                 {
-                    var response = await client.GetAsync($"http://ip-api.com/json/{ip}?fields=33615865");
+                    var response = await client.GetAsync($"http://ip-api.com/json/{ip}?fields=50589689");
 
                     if (response.IsSuccessStatusCode)
                     {
@@ -111,6 +111,9 @@ namespace IpProxy
             public string? Isp { get; set; }
             public string? Org { get; set; }
             public string? As { get; set; }
+            public bool? Mobile { get; set; }
+            public bool? Proxy { get; set; }
+            public bool? Hosting { get; set; }
             public string? Query { get; set; }
 
             public ResponseModel(
@@ -127,6 +130,9 @@ namespace IpProxy
                 string? isp = null,
                 string? org = null,
                 string? @as = null,
+                bool? mobile = null,
+                bool? proxy = null,
+                bool? hosting = null,
                 string? query = null)
             {
                 Status = status;
@@ -142,6 +148,9 @@ namespace IpProxy
                 Isp = isp;
                 Org = org;
                 As = @as;
+                Mobile = mobile;
+                Proxy = proxy;
+                Hosting = hosting;
                 Query = query;
             }
         }
